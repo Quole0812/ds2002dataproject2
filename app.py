@@ -7,13 +7,12 @@ app = Flask(__name__)
 
 import google.generativeai as genai
 
-# Example Set Up of the API key stored in Google Colab secret keys
 GOOGLE_API_KEY = "AIzaSyAvpxVlA_6rjhdpR0aiYfRulS2Jbtl6NS0"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 class Gemini_Chatbot:
     def __init__(self, system_prompt="You are a helpful assistant."):
-        self.model = genai.GenerativeModel("gemini-1.5-flash") #choose your model here
+        self.model = genai.GenerativeModel("gemini-1.5-flash")
         self.history = [{"role": "model", "parts": system_prompt}]
         self.system_prompt = system_prompt
 
@@ -46,21 +45,21 @@ def chat():
         response = chatbot.converse(question)
         return jsonify({"response": response})
 
-    # Handle food recipe (stub)
+    #temp for recipe
     elif token == "food recipe":
-        # Replace with real API call later
+        #plz look at this
         return jsonify({"response": "Here is a sample food recipe: Tofu stir-fry"})
 
-    # Handle drink recipe (stub)
+    #temp for drink
     elif token == "drink recipe":
-        # Replace with real API call later
+        #plz look at this
         return jsonify({"response": "Here is a drink recipe: Lemonade Spritz"})
 
-    # Done signal
+    #finish here
     elif token == "done":
         return jsonify({"response": "Session closed. Goodbye!"})
 
-    # Unknown
+    # error handle
     else:
         return jsonify({"error": f"Unknown token: '{token}'"}), 400
 
