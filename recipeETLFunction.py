@@ -37,8 +37,10 @@ recipes_df['difficulty'] = recipes_df.apply(
             lambda row: assign_difficulty(row['Total Cook Time (minutes)'], row['Number of Ingredients']), axis=1
         )
 
+# double check i can print everything
 print(recipes_df.columns)
 print(recipes_df.head())
 
+# save to new csv file
 recipes_df.to_csv('cleanedRecipes.csv', index=False)
 
