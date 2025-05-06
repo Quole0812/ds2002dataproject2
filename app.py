@@ -1,15 +1,13 @@
 from flask import Flask, jsonify, request
 import google.generativeai as genai
-import os
 import pandas as pd
-from kaggle.api.kaggle_api_extended import KaggleApi
+import sqlite3
+import requests
 
 app = Flask(__name__)
 
-import requests
-
-# temp state so bot knows when user has asked for a drink recipe
-drink_context = {"awaiting_drink_name": False}
+# temp state so bot knows when user has asked for a drink recipe and food name
+drink_context = {"awaiting_drink_name": False, "awaiting_food_name": False}
 
 import google.generativeai as genai
 
@@ -31,22 +29,24 @@ class Gemini_Chatbot:
         # print(response.text)
         self.history.append({"role": "model", "parts": response.text})
         return response.text
+    
+def load_data():
+    df = pd.read_csv("cleanedRecipes.csv")
+    conn = sqlite3.connect("local_data.db")
+    df.to_sql("chatbot_data", conn, if_exists="replace", index=False)
+    conn.close()
 
-# kaggle API
-def download_kaggle_data():
-    os.environ['KAGGLE_CONFIG_DIR'] = "/path/to/your/kaggle_config_dir"  # adjust this
-    api = KaggleApi()
-    api.authenticate()
-    api.dataset_download_files('dataset-name/dataset', path='data/', unzip=True)
+def get_local_data(query_param):
+    conn = sqlite3.connect("local_data.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM chatbot_data WHERE Lower(Recipe) = Lower(?)", (query_param,))
+    result = cursor.fetchall()
+    conn.close()
 
-# fetching data from kaggle dataset
-@app.route('/get-kaggle-data', methods=['GET'])
-def get_kaggle_data():
-    try:
-        df = pd.read_csv('kaggleRecipes.csv')  
-        return jsonify(df.head(10).to_dict(orient='records'))  # first 10 rows
-    except Exception as e:
-        return jsonify({"error": f"Error loading dataset: {str(e)}"}), 500
+    if result:
+        return result
+    else:
+        return "No matching data found."
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -67,8 +67,57 @@ def chat():
 
     #temp for recipe
     elif token == "food recipe":
-        #plz look at this
-        return jsonify({"response": "Here is a sample food recipe: Tofu stir-fry"})
+        print("Received token: food recipe")
+        if not question:
+            drink_context["awaiting_food_name"] = True
+            print("Awaiting food name input")
+            return jsonify({"response": "What food recipe would you like to know?"})
+
+        if drink_context.get("awaiting_food_name"):
+            drink_context["awaiting_food_name"] = False
+            recipe_name = question.strip()
+            print(f"Looking up recipe: {recipe_name}")
+
+            try:
+                result = get_local_data(recipe_name)
+                print(f"Query result: {result}")
+                if result == "No matching data found.":
+                    return jsonify({"response": f"No recipe found for '{recipe_name}'."})
+
+                row = result[0]
+                print(f"Row extracted: {row}")
+                (recipe, cuisine, ingredients, prep_time, cook_time, servings,
+                calories, diet, likes, dislikes, difficulty) = row
+
+                # Attempt to parse ingredients
+                try:
+                    ingredients_list = eval(ingredients)
+                    ingredients_formatted = "\n".join(f"- {i}" for i in ingredients_list)
+                except Exception as e:
+                    print("Error parsing ingredients:", e)
+                    ingredients_formatted = ingredients
+
+                response_text = (
+                    f"🍽️ {recipe} ({cuisine} cuisine)\n\n"
+                    f"📋 Ingredients:\n{ingredients_formatted}\n\n"
+                    f"🧑‍🍳 Prep Time: {prep_time} mins\n"
+                    f"🔥 Cook Time: {cook_time} mins\n"
+                    f"🍴 Servings: {servings}\n"
+                    f"⚡ Calories: {calories}\n"
+                    f"🥗 Diet: {diet}\n"
+                    f"👍 Likes: {likes} | 👎 Dislikes: {dislikes}\n"
+                    f"🧠 Difficulty: {difficulty}"
+                )
+
+                return jsonify({"response": response_text})
+
+            except Exception as e:
+                print("Server error:", e)
+                return jsonify({"error": f"Unexpected server error: {str(e)}"}), 500
+
+        else:
+            return jsonify({"response": "Please say 'food recipe' again to start a new food query."})
+
 
     # cocktailAPI
     elif token == "drink recipe":
@@ -131,10 +180,7 @@ def chat():
     else:
         return jsonify({"error": f"Unknown token: '{token}'"}), 400
 
-# main entry point to download kaggle data
-@app.before_first_request
-def init_kaggle_data():
-    download_kaggle_data()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
+    load_data()
