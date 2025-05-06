@@ -1,6 +1,6 @@
 import requests
 
-url = "http://127.0.0.1:5000/chat"
+url = "http://35.193.163.40:5000/chat"
 
 print("Chatbot client started. Type 'done' to exit.")
 while True:
@@ -14,9 +14,18 @@ while True:
     question = ""
     if token == "gemini":
         question = input("What is your question for Gemini? ")
-    elif token == "food recipe":
-        question = input("What food recipe would you like to know? ")
 
+    if token == "food recipe":
+        response = requests.post(url, json={"token": "food recipe"})
+        print("Bot:", response.json()["response"])
+
+        food_name = input("Food name: ").strip()
+        response = requests.post(url, json={"token": "food recipe", "question": food_name})
+        try:
+            print("Bot:", response.json()["response"])
+        except ValueError:
+            print("Error: Server did not return valid JSON")
+        continue
     # drink recipe prompt
     if token == "drink recipe":
         response = requests.post(url, json={"token": "drink recipe"})
