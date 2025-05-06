@@ -6,6 +6,11 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 
 app = Flask(__name__)
 
+import requests
+
+# temp state so bot knows when user has asked for a drink recipe
+drink_context = {"awaiting_drink_name": False}
+
 import google.generativeai as genai
 
 GOOGLE_API_KEY = "AIzaSyAvpxVlA_6rjhdpR0aiYfRulS2Jbtl6NS0"
@@ -65,10 +70,58 @@ def chat():
         #plz look at this
         return jsonify({"response": "Here is a sample food recipe: Tofu stir-fry"})
 
-    #temp for drink
+    # cocktailAPI
     elif token == "drink recipe":
-        #plz look at this
-        return jsonify({"response": "Here is a drink recipe: Lemonade Spritz"})
+        if not question:
+            # user asks for a drink recipe
+            drink_context["awaiting_drink_name"] = True
+            return jsonify({"response": "What drink recipe would you like to know?"})
+
+        # user gives a drink name after being prompted
+        if drink_context.get("awaiting_drink_name"):
+            drink_context["awaiting_drink_name"] = False  # reset the state
+            drink_name = question.strip()
+
+            api_url = f"https://www.thecocktaildb.com/api/json/v1/1/search.php?s={drink_name}"
+            try:
+                api_response = requests.get(api_url)
+                # cant reach api
+                if api_response.status_code != 200:
+                    return jsonify(
+                        {"error": f"Failed to reach CocktailDB API (Status {api_response.status_code})"}), 500
+
+                data = api_response.json()
+                # cant find the drink
+                if not data.get('drinks'):
+                    return jsonify({"response": f"No cocktail recipe found for '{drink_name}'."})
+
+                # grab the info on the drink recipe
+                drink = data['drinks'][0]
+                name = drink.get('strDrink', 'Unknown')
+                instructions = drink.get('strInstructions', 'No instructions available')
+
+                # get each ingredient
+                ingredients = []
+                for i in range(1, 16):
+                    ing = drink.get(f'strIngredient{i}')
+                    meas = drink.get(f'strMeasure{i}')
+                    if ing:
+                        line = f"{meas.strip()} {ing.strip()}" if meas else ing.strip()
+                        ingredients.append(line)
+
+                ingredient_text = '\n'.join(ingredients)
+                # build the full response
+                response_text = f"{name}\n\nIngredients:\n{ingredient_text}\n\nInstructions:\n{instructions}"
+
+                # return the entire response
+                return jsonify({"response": response_text})
+
+            # if there's any other error
+            except Exception as e:
+                return jsonify({"error": f"Unexpected server error: {str(e)}"}), 500
+
+        else:
+            return jsonify({"response": "Please say 'drink recipe' again to start a new drink query."})
 
     #finish here
     elif token == "done":
