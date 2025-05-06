@@ -1,9 +1,10 @@
 from flask import Flask, jsonify, request
 import google.generativeai as genai
-
+import os
+import pandas as pd
+from kaggle.api.kaggle_api_extended import KaggleApi
 
 app = Flask(__name__)
-
 
 import google.generativeai as genai
 
@@ -26,7 +27,21 @@ class Gemini_Chatbot:
         self.history.append({"role": "model", "parts": response.text})
         return response.text
 
+# kaggle API
+def download_kaggle_data():
+    os.environ['KAGGLE_CONFIG_DIR'] = "/path/to/your/kaggle_config_dir"  # adjust this
+    api = KaggleApi()
+    api.authenticate()
+    api.dataset_download_files('zynicide/wine-reviews', path='data/', unzip=True)
 
+# fetching data from kaggle dataset
+@app.route('/get-kaggle-data', methods=['GET'])
+def get_kaggle_data():
+    try:
+        df = pd.read_csv('data/winemag-data_first150k.csv')  # adjust filename if needed
+        return jsonify(df.head(10).to_dict(orient='records'))  # first 10 rows
+    except Exception as e:
+        return jsonify({"error": f"Error loading dataset: {str(e)}"}), 500
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -63,9 +78,10 @@ def chat():
     else:
         return jsonify({"error": f"Unknown token: '{token}'"}), 400
 
-
+# main entry point to download kaggle data
+@app.before_first_request
+def init_kaggle_data():
+    download_kaggle_data()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
-
-
