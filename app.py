@@ -38,7 +38,7 @@ def download_kaggle_data():
 @app.route('/get-kaggle-data', methods=['GET'])
 def get_kaggle_data():
     try:
-        df = pd.read_csv('data/winemag-data_first150k.csv')  # adjust filename if needed
+        df = pd.read_csv('kaggleRecipes.csv')  
         return jsonify(df.head(10).to_dict(orient='records'))  # first 10 rows
     except Exception as e:
         return jsonify({"error": f"Error loading dataset: {str(e)}"}), 500
