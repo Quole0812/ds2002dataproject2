@@ -11,7 +11,7 @@ drink_context = {"awaiting_drink_name": False, "awaiting_food_name": False}
 
 import google.generativeai as genai
 
-GOOGLE_API_KEY = "AIzaSyAvpxVlA_6rjhdpR0aiYfRulS2Jbtl6NS0"
+GOOGLE_API_KEY = ""
 genai.configure(api_key=GOOGLE_API_KEY)
 
 class Gemini_Chatbot:
