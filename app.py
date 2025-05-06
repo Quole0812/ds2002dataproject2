@@ -32,7 +32,7 @@ def download_kaggle_data():
     os.environ['KAGGLE_CONFIG_DIR'] = "/path/to/your/kaggle_config_dir"  # adjust this
     api = KaggleApi()
     api.authenticate()
-    api.dataset_download_files('zynicide/wine-reviews', path='data/', unzip=True)
+    api.dataset_download_files('dataset-name/dataset', path='data/', unzip=True)
 
 # fetching data from kaggle dataset
 @app.route('/get-kaggle-data', methods=['GET'])
