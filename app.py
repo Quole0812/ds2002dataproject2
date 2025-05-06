@@ -98,15 +98,15 @@ def chat():
                     ingredients_formatted = ingredients
 
                 response_text = (
-                    f"🍽️ {recipe} ({cuisine} cuisine)\n\n"
-                    f"📋 Ingredients:\n{ingredients_formatted}\n\n"
-                    f"🧑‍🍳 Prep Time: {prep_time} mins\n"
-                    f"🔥 Cook Time: {cook_time} mins\n"
-                    f"🍴 Servings: {servings}\n"
-                    f"⚡ Calories: {calories}\n"
-                    f"🥗 Diet: {diet}\n"
-                    f"👍 Likes: {likes} | 👎 Dislikes: {dislikes}\n"
-                    f"🧠 Difficulty: {difficulty}"
+                    f"{recipe} ({cuisine} cuisine)\n\n"
+                    f"Ingredients:\n{ingredients_formatted}\n\n"
+                    f"Prep Time: {prep_time} mins\n"
+                    f"Cook Time: {cook_time} mins\n"
+                    f"Servings: {servings}\n"
+                    f"Calories: {calories}\n"
+                    f"Diet: {diet}\n"
+                    f"Likes: {likes} | Dislikes: {dislikes}\n"
+                    f"Difficulty: {difficulty}"
                 )
 
                 return jsonify({"response": response_text})
