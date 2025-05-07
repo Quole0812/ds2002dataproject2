@@ -1,6 +1,10 @@
 import requests
+from flask import Flask, jsonify, request
+
 
 url = "http://35.193.163.40:5000/chat"
+
+
 
 print("Chatbot client started. Type 'done' to exit.")
 while True:
