@@ -1,4 +1,6 @@
 
+<img width="298" alt="Screenshot 2025-05-09 at 12 43 50 AM" src="https://github.com/user-attachments/assets/a2d0628e-f0c4-4c3c-81bf-007a326e51c4" />
+
 endpoint link: http://35.193.163.40:5000/chat
 
 TUTORIAL: PLEASE WATCH
