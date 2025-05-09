@@ -27,7 +27,12 @@ curl -X POST http://35.193.163.40:5000/chat \
 
 Same thing for the drink 
 
+Drink recipe covered: 
+https://www.thecocktaildb.com/ 
+
 ### Recipes Covered
+
+Here's the dataset https://www.kaggle.com/datasets/prajwaldongre/collection-of-recipes-around-the-world 
 
 - Spicy Kimchi Fried Rice
 - Classic Margherita Pizza
