@@ -1,7 +1,6 @@
 
 endpoint link: http://35.193.163.40:5000/chat
 
-
 download the repo, then do the following command
 
 python main.py
