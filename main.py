@@ -1,6 +1,10 @@
 import requests
+from flask import Flask, jsonify, request
+
 
 url = "http://35.193.163.40:5000/chat"
+
+
 
 print("Chatbot client started. Type 'done' to exit.")
 while True:
@@ -12,10 +16,10 @@ while True:
         break
 
     question = ""
-    if token == "gemini":
+    if token == "gemini" or "gemini" in token:
         question = input("What is your question for Gemini? ")
 
-    if token == "food recipe":
+    if token == "food recipe" or "food recipe" in token:
         response = requests.post(url, json={"token": "food recipe"})
         print("Bot:", response.json()["response"])
 
@@ -27,7 +31,7 @@ while True:
             print("Error: Server did not return valid JSON")
         continue
     # drink recipe prompt
-    if token == "drink recipe":
+    if token == "drink recipe" or "drink recipe" in token:
         response = requests.post(url, json={"token": "drink recipe"})
         print("Bot:", response.json()["response"])
 
