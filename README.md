@@ -1,6 +1,9 @@
 
 endpoint link: http://35.193.163.40:5000/chat
 
+TUTORIAL: PLEASE WATCH
+https://youtu.be/q1wtwunGXg8?si=Dr7vW3F1kKlntfqA 
+
 download the repo, then do the following command
 
 python main.py
@@ -8,6 +11,21 @@ python main.py
 #then it's going to give you a prompt, you can choose food recipe, drink recipe, or gemini
 
 #choose one then follow the prompt
+
+
+ALTERNATIVELY, you can do 
+
+curl -X POST http://35.193.163.40:5000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"token": "food recipe"}'                                       
+
+after the bot is prompted the specific token, you then do 
+
+curl -X POST http://35.193.163.40:5000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"token": "food recipe", "question": "Spicy Kimchi Fried Rice"}'
+
+Same thing for the drink 
 
 ### Recipes Covered
 
